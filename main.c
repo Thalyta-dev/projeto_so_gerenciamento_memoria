@@ -40,14 +40,16 @@ typedef struct {
 int fifo(int8_t** page_table, int num_pages, int prev_page,
          int fifo_frm, int num_frames, int clock) {
             
-            int ultimaPagina=0;     
+            int paginaRetirada=0;     
 
              for(int i=0;i<num_pages;i++){
+                 //Verificado se o endereço da memoria fisica que a pagina tem, é o mesmo endereço da primeira moldura acessada
+                 // Verificando se é uma pagina mapeada.
                  if(page_table[i][PT_FRAMEID] == fifo_frm  && page_table[i][PT_MAPPED]!=0  )
-                     ultimaPagina=i;    
+                     paginaRetirada=i;    
              }
 
-            return ultimaPagina;
+            return paginaRetirada;
 }
 
 int random_page(int8_t** page_table, int num_pages, int prev_page,
@@ -64,25 +66,34 @@ int random_page(int8_t** page_table, int num_pages, int prev_page,
   
     return page;
 }
+
 int second_chance(int8_t** page_table, int num_pages, int prev_page,
          int fifo_frm, int num_frames, int clock) {
              for(int i=0;i<num_pages;i++){
                  if(page_table[i][PT_MAPPED]!=0 ){
+
+                    //Verificado se o endereço da memoria fisica que a pagina tem, é o mesmo endereço da primeira moldura acessada e se o bit r é 0
+                    //se for, esa é a pagina que vai ser substituida
+
                     if(page_table[i][PT_FRAMEID] == fifo_frm  && page_table[i][PT_REFERENCE_BIT]==0){
                         return i;  
                     }
+
+                    //se o bit r for igual a 1, coloca no fim da fila
                      if(page_table[i][PT_FRAMEID] == fifo_frm  && page_table[i][PT_REFERENCE_BIT]==1){
                          prev_page=i;
                     }  
                  }
              }
             
+            //caso nã tenha encontrado nenhuma pagina, que satisfaça as confições da fifo + bit é = 0, então recorremos somente a fifo
             return fifo( page_table, num_pages,  prev_page, fifo_frm, num_frames,clock);
 }
 
 int nru(int8_t** page_table, int num_pages, int prev_page,
         int fifo_frm, int num_frames, int clock) {
 
+            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 0, m =0), se achar a gente já retorna imediatamente
              for(int i=0;i<num_pages;i++){      
                  if((page_table[i][PT_DIRTY] == 0 && page_table[i][PT_REFERENCE_BIT] == 0)  && page_table[i][PT_MAPPED]!=0){ 
                      return i; 
@@ -90,12 +101,15 @@ int nru(int8_t** page_table, int num_pages, int prev_page,
 
              }
 
+            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 0, m =1), retornamos imediatamente
             for(int i=0;i<num_pages;i++){      
                  if((page_table[i][PT_DIRTY] == 1 && page_table[i][PT_REFERENCE_BIT] == 0)  && page_table[i][PT_MAPPED]!=0){
                    return i; 
                 }
                       
             }
+
+            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 1, m =0), retornamos imediatamente
 
             for(int i=0;i<num_pages;i++){      
                 if((page_table[i][PT_DIRTY] == 0 && page_table[i][PT_REFERENCE_BIT] == 1)  && page_table[i][PT_MAPPED]!=0){ 
@@ -105,6 +119,7 @@ int nru(int8_t** page_table, int num_pages, int prev_page,
                       
             }
     
+            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 1, m =1), retornamos imediatamente
             for(int i=0;i<num_pages;i++){      
                 if((page_table[i][PT_DIRTY] == 1 && page_table[i][PT_REFERENCE_BIT] == 1)  && page_table[i][PT_MAPPED]!=0){
                      return i;
@@ -118,34 +133,30 @@ int nru(int8_t** page_table, int num_pages, int prev_page,
 
 int aging(int8_t** page_table, int num_pages, int prev_page,
           int fifo_frm, int num_frames, int clock) {
-              
-            printf("entrou");
+            
+            //setamos um valor muito alto para a menor idade
             int menorIdade =10000000;
+            int pagina = 0;
 
              for(int i=0;i<num_pages;i++){      
                  if(page_table[i][PT_MAPPED]!=0){    
 
-    
+                     // se a idade da pagina, for menor ue a menorIdade que declaramos, então a idade da pagina, ser atribuida a menorIdade
                      if(page_table[i][PT_AGING_COUNTER]< menorIdade){
             
-                         menorIdade = i;
-                         
+                         menorIdade = page_table[i][PT_AGING_COUNTER];
+
+                         //A pagina a ser substituida é aquela que tem a menor idade
+                         pagina = i;
                      }       
                  }
 
              }                             
     
-    return menorIdade;
+    return pagina;
 
 }
 
-int random_page(int8_t** page_table, int num_pages, int prev_page,
-                int fifo_frm, int num_frames, int clock) {
-    int page = rand() % num_pages;
-    while (page_table[page][PT_MAPPED] == 0) // Encontra página mapeada
-        page = rand() % num_pages;
-    return page;
-}
 
 // Simulador a partir daqui
 
