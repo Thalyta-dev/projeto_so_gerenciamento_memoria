@@ -15,7 +15,9 @@ Para testar um algoritmo, primeiro você precisa ter o `GCC` instalado no seu si
 
 Este comando indicado no passo 2. vai compilar o código e depois executá-lo com o algoritmo fifo, executando 10 vezes e com a estrutura de memória encontrada no arquivo anomaly.dat. Caso você queira executar outros algoritmos é só fazer a substituição no comando indicado: *`gcc -Wall main.c -o vmm && ./vmm {Algoritmo} {quantidade de execução}< massa_teste/{arquivo_de_teste.dat}`*
 
-no parâmetro {Algoritmo}, você pode substituir por `fifo, second_chance, nru, random e aging.`
+No parâmetro `{Algoritmo}`, você pode substituir por `fifo, second_chance, nru, random ou aging.`
+No parâmetro  `{quantidade de execução}`, você pode substituir pela quantidade de vezes que quer rodar o algoritmo.
+No parâmetro  `{arquivo_de_teste.dat}`, você pode substituir por qualquer arquivo da pasta `{massa_teste}`.
 
 Ao executar o passo 2, você receberá como saída o número 9, que corresponde a quantidade de page fault que aconteceu.
 
