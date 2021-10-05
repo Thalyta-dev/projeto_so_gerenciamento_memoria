@@ -73,7 +73,7 @@ int second_chance(int8_t** page_table, int num_pages, int prev_page,
                  if(page_table[i][PT_MAPPED]!=0 ){
 
                     //Verificado se o endereço da memoria fisica que a pagina tem, é o mesmo endereço da primeira moldura acessada e se o bit r é 0
-                    //se for, esa é a pagina que vai ser substituida
+                    //se for, essa é a pagina que vai ser substituida
 
                     if(page_table[i][PT_FRAMEID] == fifo_frm  && page_table[i][PT_REFERENCE_BIT]==0){
                         return i;  
@@ -86,7 +86,7 @@ int second_chance(int8_t** page_table, int num_pages, int prev_page,
                  }
              }
             
-            //caso nã tenha encontrado nenhuma pagina, que satisfaça as confições da fifo + bit é = 0, então recorremos somente a fifo
+            //caso não tenha encontrado nenhuma pagina, que satisfaça as condições da fifo + bit é = 0, então recorremos somente a fifo
             return fifo( page_table, num_pages,  prev_page, fifo_frm, num_frames,clock);
 }
 
@@ -101,7 +101,7 @@ int nru(int8_t** page_table, int num_pages, int prev_page,
 
              }
 
-            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 0, m =1), retornamos imediatamente
+            // Aqui a gente verifica se a pagina pertence a segunda classe (r = 0, m =1), retornamos imediatamente
             for(int i=0;i<num_pages;i++){      
                  if((page_table[i][PT_DIRTY] == 1 && page_table[i][PT_REFERENCE_BIT] == 0)  && page_table[i][PT_MAPPED]!=0){
                    return i; 
@@ -109,7 +109,7 @@ int nru(int8_t** page_table, int num_pages, int prev_page,
                       
             }
 
-            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 1, m =0), retornamos imediatamente
+            // Aqui a gente verifica se a pagina pertence a terceira classe (r = 1, m =0), retornamos imediatamente
 
             for(int i=0;i<num_pages;i++){      
                 if((page_table[i][PT_DIRTY] == 0 && page_table[i][PT_REFERENCE_BIT] == 1)  && page_table[i][PT_MAPPED]!=0){ 
@@ -119,7 +119,7 @@ int nru(int8_t** page_table, int num_pages, int prev_page,
                       
             }
     
-            // Aqui a gente verifica se a pagina pertence a primeira classe (r = 1, m =1), retornamos imediatamente
+            // Aqui a gente verifica se a pagina pertence a quarta classe (r = 1, m =1), retornamos imediatamente
             for(int i=0;i<num_pages;i++){      
                 if((page_table[i][PT_DIRTY] == 1 && page_table[i][PT_REFERENCE_BIT] == 1)  && page_table[i][PT_MAPPED]!=0){
                      return i;
@@ -141,7 +141,7 @@ int aging(int8_t** page_table, int num_pages, int prev_page,
              for(int i=0;i<num_pages;i++){      
                  if(page_table[i][PT_MAPPED]!=0){    
 
-                     // se a idade da pagina, for menor ue a menorIdade que declaramos, então a idade da pagina, ser atribuida a menorIdade
+                     // se a idade da pagina, for menor que a menorIdade que declaramos, então a idade da pagina, será atribuida a menorIdade
                      if(page_table[i][PT_AGING_COUNTER]< menorIdade){
             
                          menorIdade = page_table[i][PT_AGING_COUNTER];
